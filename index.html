@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Documenting with audio</title>
+
+</head><body>
+
+<p>View this in Firefox, Chrome, Safari or Opera. Not IE.
+Click the play button. The action starts at ~20 seconds.</p>
+<audio id="audio" autobuffer controls>
+ <source type="audio/ogg"  src="/audio/outlook-mapi.ogg"></source>
+ <source type="audio/mpeg" src="/audio/outlook-mapi.mp3"></source>
+</audio>
+
+<pre class="brush: py">
+import win32com.client
+
+def get_mails(folder, path=[]):
+    for mail in folder.Items:
+        yield mail, path
+    for subfolder in folder.Folders:
+        for mail, subpath in get_mails(subfolder, path + [subfolder]):
+            yield mail, subpath
+
+outlook = win32com.client.Dispatch('Outlook.Application')
+mapi = outlook.GetNamespace('MAPI')
+for store in mapi.Stores:
+    if not store.IsDataFileStore: continue
+
+    for mail, path_list in get_mails(store.GetRootFolder()):
+        path_str = '/'.join([p.Name for p in path_list])
+        print mail.size, path_str, mail.subject.encode('utf8')
+</pre>
+
+<link rel="stylesheet" href="/css/shCore.css" />
+<link rel="stylesheet" href="/css/shThemeDefault.css" />
+,
+<script src="/js/shCore.js"></script>
+<script src="/js/shBrushPython.js"></script>
+<script src="/js/jquery.min.js"></script>
+<script src="/js/popcorn-complete.min.js"></script>
+
+<script>
+SyntaxHighlighter.all();
+
+function subtitle(media_node, pre_node, events) {
+  var pop = Popcorn(media_node);
+  for (var i=0, l=events.length; i<l; i++) {
+    for (var j=0, line_selector=[], line_no; line_no=events[i][1][j]; j++) {
+      line_selector.push(pre_node + ' .number' + line_no)
+    }
+    var start    = events[i][0]
+      , end      = i<l-1 ? events[i+1][0] : events[i][0]+999;
+    (function(start, end, selector) {
+      pop.code({start: start, end:end,
+        onStart : function(o) { $(selector).addClass   ('highlighted'); },
+        onEnd   : function(o) { $(selector).removeClass('highlighted'); }
+      })
+    })(start, end, line_selector.join(','));
+  }
+
+  function jump() {
+    for (var i = 0; i < events.length; i++) {
+      for (var j = 0;  j  < events[i][1].length; j++) {
+        var ln = $('.gutter .number' + events[i][1][j]);
+        $(ln).css('background-color', '#BFF2BF !important');
+        $(ln).css('cursor', 'pointer');
+
+        var fn = function(val) {
+          return function () {
+            console.log(val);
+            var audio = document.getElementsByTagName("audio")[0];
+            audio.currentTime = val;
+            audio.play();
+          }
+        }
+        $(ln).click(fn(events[i][0]));
+      }
+    }
+  }
+
+  setTimeout(jump,1000);
+}
+
+</script>
+<script>
+$(function() {
+  var subs = [
+    [ 20, [1]],
+    [ 50, [10]],
+    [ 57, [11]],
+    [ 73, [12]],
+    [ 85, [13]],
+    [ 94, [15]],
+    [105, [15,3]],
+    [143, [16]],
+    [155, [17]],
+    [164, [3]],
+    [173, [4,5]],
+    [180, [6]],
+    [184, [7,8]],
+    [206, []]
+  ];
+  subtitle('#audio', '', subs);
+});
+</script>
+</body></html>
