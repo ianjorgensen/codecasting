@@ -6,10 +6,11 @@
 </head><body>
 
 <p>View this in Firefox, Chrome, Safari or Opera. Not IE.
-Click the play button. The action starts at ~20 seconds.</p>
+Click the play button or one of the light green line numbers. The action starts at ~20 seconds.</p>
 <audio id="audio" autobuffer controls>
- <source type="audio/ogg"  src="/audio/outlook-mapi.ogg"></source>
- <source type="audio/mpeg" src="/audio/outlook-mapi.mp3"></source>
+ <source type="audio/ogg"  src="http://ia700807.us.archive.org/12/items/OutlookMapi/outlook-mapi.ogg"></source>
+ <source type="audio/ogg"  src="http://ia700807.us.archive.org/12/items/OutlookMapi/outlook-mapi.mp3"></source>
+ 
 </audio>
 
 <pre class="brush: py">
@@ -64,8 +65,18 @@ function subtitle(media_node, pre_node, events) {
       for (var j = 0;  j  < events[i][1].length; j++) {
         var ln = $('.gutter .number' + events[i][1][j]);
         $(ln).css('background-color', '#BFF2BF !important');
+        $(ln).hover(function(ln) {
+          return function() {
+            $(ln).css('background-color', '#91E891 !important');    
+          };
+        }(ln),function(ln) {
+          return function() {
+            $(ln).css('background-color', '#BFF2BF !important');    
+          };
+        }(ln));
+        
         $(ln).css('cursor', 'pointer');
-
+        
         var fn = function(val) {
           return function () {
             console.log(val);
